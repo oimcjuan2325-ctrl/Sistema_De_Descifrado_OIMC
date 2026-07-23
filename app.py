@@ -12,8 +12,8 @@ ARCHIVO_MENSAJES = "mensajes_archivados.json"
 ARCHIVO_USUARIOS = "usuarios.json"
 
 # Credenciales y base de datos simulada de usuarios
-ADMIN_USER = "admin"
-ADMIN_PASS = "admin123"
+ADMIN_USER = "Juan"
+ADMIN_PASS = "2325"
 
 def cargar_usuarios():
     if os.path.exists(ARCHIVO_USUARIOS):
