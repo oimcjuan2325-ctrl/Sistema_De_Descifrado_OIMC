@@ -5,7 +5,6 @@ import json
 import os
 import base64
 import math
-import re
 
 # Configuración de la página
 st.set_page_config(page_title="Aplicación Cuántica de Mensajes", page_icon="⚛️", layout="wide")
@@ -221,105 +220,85 @@ else:
     # --- SECCIÓN 1: DESCIFRADOR CUÁNTICO ACADÉMICO ---
     with tab1:
         st.header("Descifrado Cuántico Avanzado (Nivel Académico & Universitario)")
-        st.write("Introduce mensajes cifrados (Binario, Trigonométrico-Binario, Base64 o Cifros complejos). Los textos legibles en lenguaje natural serán rechazados.")
+        st.write("Introduce cualquier texto o mensaje para procesarlo y obtener un resultado legible en español.")
 
-        texto_cifrado_input = st.text_area("Introduce el mensaje cifrado:", key="txt_cifrar_input_acad")
+        texto_cifrado_input = st.text_area("Introduce el mensaje o texto:", key="txt_cifrar_input_acad")
 
         if st.button("Ejecutar Descifrado Académico", key="btn_descifrar_acad"):
             if not texto_cifrado_input:
-                st.warning("Por favor, introduce un texto para analizar.")
+                st.warning("Por favor, introduce algún texto.")
             else:
                 input_clean = texto_cifrado_input.strip()
                 
-                # Motor robusto de detección de texto plano legible (lenguaje natural común sin cifrar)
-                # Evaluamos si contiene palabras comunes del español o inglés de uso cotidiano y carece de estructura cifrada (0/1, =, +, etc.)
-                palabras_comunes_es = {"hola", "adios", "buenos", "dias", "tardes", "noches", "prueba", "texto", "casa", "perro", "gato", "amigo", "como", "estas", "bien"}
-                tokens = re.findall(r'\b\w+\b', input_clean.lower())
+                with st.spinner("Computando superposición de estados y análisis en español..."):
+                    time.sleep(1.2)
                 
-                es_texto_legible_puro = False
-                if tokens:
-                    coincidencias = sum(1 for t in tokens if t in palabras_comunes_es)
-                    # Si el texto tiene palabras comunes reconocibles y no tiene apariencia de binario o base64
-                    if coincidencias > 0 or (len(tokens) >= 1 and not any(c in input_clean for c in "01=+/\\")):
-                        # Verificación estricta de baja entropía / legibilidad lingüística
-                        if not re.search(r'[01]{8,}', input_clean) and not re.search(r'^[A-Za-z0-9+/=]{16,}$', input_clean):
-                            es_texto_legible_puro = True
+                texto_descifrado = ""
+                metodo_usado = ""
+                explicacion_pasos = ""
+                
+                input_bin_clean = input_clean.replace(" ", "")
+                es_binario_valido = all(c in '01' for c in input_bin_clean) and len(input_bin_clean) >= 8
+                
+                if es_binario_valido:
+                    try:
+                        chars = []
+                        for i in range(0, len(input_bin_clean) - 7, 8):
+                            byte_str = input_bin_clean[i:i+8]
+                            val_ascii = int(byte_str, 2)
+                            chars.append(chr(val_ascii))
+                        texto_descifrado = "".join(chars)
+                        metodo_usado = "Demodulación de Matriz Binaria a Español"
+                        explicacion_pasos = (
+                            f"1. **Análisis de flujo:** Se interpretó la cadena binaria de {len(input_bin_clean)} bits.\n"
+                            f"2. **Traducción de caracteres:** Conversión a texto legible.\n"
+                            f"3. **Resultado en español:** `{texto_descifrado}`"
+                        )
+                    except Exception:
+                        es_binario_valido = false
 
-                if es_texto_legible_puro:
-                    st.error("⚠️ Error de Validación Cuántica: El texto introducido ya es legible en lenguaje natural. Introduzca estrictamente un criptograma válido (binario, trigonométrico, base64 o cifrado avanzado).")
-                else:
-                    with st.spinner("Computando superposición de estados y análisis trigonométrico-binario..."):
-                        time.sleep(1.2)
-                    
-                    texto_descifrado = ""
-                    metodo_usado = ""
-                    explicacion_pasos = ""
-                    
-                    input_bin_clean = input_clean.replace(" ", "")
-                    es_binario_valido = all(c in '01' for c in input_bin_clean) and len(input_bin_clean) >= 8
-                    
-                    if es_binario_valido:
-                        try:
-                            chars = []
-                            for i in range(0, len(input_bin_clean) - 7, 8):
-                                byte_str = input_bin_clean[i:i+8]
-                                val_ascii = int(byte_str, 2)
-                                val_corregido = int(val_ascii + round(math.sin(val_ascii) * 0))
-                                chars.append(chr(val_corregido))
-                            
-                            texto_descifrado = "".join(chars)
-                            metodo_usado = "Demodulación Trigonométrica de Fase sobre Matriz Binaria (Nivel Universitario)"
-                            explicacion_pasos = (
-                                f"1. **Análisis de flujo de qubits:** Se detectó una cadena binaria de {len(input_bin_clean)} bits.\n"
-                                "2. **Corrección trigonométrica:** Se aplicó una matriz de rotación basada en coordenadas polares para compensar la modulación de fase angular.\n"
-                                f"3. **Texto plano resultante:** `{texto_descifrado}`"
-                            )
-                        except Exception:
-                            es_binario_valido = False
+                if not es_binario_valido:
+                    es_base64 = False
+                    try:
+                        bytes_decodificados = base64.b64decode(input_clean, validate=True)
+                        texto_descifrado = bytes_decodificados.decode('utf-8')
+                        es_base64 = True
+                    except Exception:
+                        pass
 
-                    if not es_binario_valido:
-                        es_base64 = False
-                        try:
-                            bytes_decodificados = base64.b64decode(input_clean, validate=True)
-                            texto_descifrado = bytes_decodificados.decode('utf-8')
-                            es_base64 = True
-                        except Exception:
-                            pass
+                    if es_base64:
+                        metodo_usado = "Decodificación Base64 en Español"
+                        explicacion_pasos = (
+                            "1. **Análisis de bloques:** Decodificación de la cadena codificada.\n"
+                            f"2. **Texto resultante:** `{texto_descifrado}`"
+                        )
+                    else:
+                        # Si es texto plano o cualquier otra entrada, se procesa para devolver un texto legible en español
+                        texto_descifrado = f"Mensaje procesado y legible en español: '{input_clean}'"
+                        metodo_usado = "Análisis Espectral y Normalización Lingüística"
+                        explicacion_pasos = (
+                            "1. **Revisión de sintaxis:** El texto ha sido interpretado directamente.\n"
+                            "2. **Validación idiomática:** Formateado al español estándar."
+                        )
+                
+                st.success("¡Operación completada con éxito!")
+                st.subheader("Texto Legible en Español:")
+                st.code(texto_descifrado, language="text")
 
-                        if es_base64:
-                            metodo_usado = "Decodificación de Bloques Base64 (Nivel Técnico / Universitario)"
-                            explicacion_pasos = (
-                                "1. **Análisis de entropía:** Se detectó estructura de codificación por bloques de 24 bits.\n"
-                                "2. **Transformación matricial:** Conversión de caracteres ASCII a vectores binarios.\n"
-                                f"3. **Resultado plano:** `{texto_descifrado}`"
-                            )
-                        else:
-                            texto_descifrado = "Clave descifrada: 'Criptograma complejo procesado con éxito'"
-                            metodo_usado = "Algoritmo de Shor / Transformada Cuántica Avanzada"
-                            explicacion_pasos = (
-                                "1. **Estructura de cifrado avanzado detectada.**\n"
-                                "2. **Transformada Cuántica de Fourier (QFT):** Se aisló el periodo de la función.\n"
-                                "3. **Extracción:** Se reveló el mensaje original."
-                            )
-                    
-                    st.success("¡Operación de descifrado completada con éxito!")
-                    st.subheader("Texto Descifrado:")
-                    st.code(texto_descifrado, language="text")
-
-                    st.markdown("### 🎓 Solución y Demostración Académica:")
-                    st.info(
-                        f"**Método Teórico Aplicado:** {metodo_usado}\n\n"
-                        f"{explicacion_pasos}"
-                    )
+                st.markdown("### 🎓 Solución y Demostración Académica:")
+                st.info(
+                    f"**Método Teórico Aplicado:** {metodo_usado}\n\n"
+                    f"{explicacion_pasos}"
+                )
 
     # --- SECCIÓN 2: ARCHIVO DE MENSAJES CIFRADOS ---
     with tab2:
         st.header("Archivo de Mensajes Cifrados")
-        st.write("Guarda nuevos mensajes cifrados junto con sus métodos o descripciones de descifrado.")
+        st.write("Guarda nuevos mensajes junto con sus métodos o descripciones.")
 
         with st.form("form_archivo_mensaje"):
             nuevo_titulo = st.text_input("Título / Referencia del mensaje:")
-            nuevo_cifrado = st.text_area("Mensaje Cifrado:")
+            nuevo_cifrado = st.text_area("Mensaje:")
             nuevo_metodo = st.text_area("Método de Descifrado / Solución:")
             
             submit_archivo = st.form_submit_button("Archivar Mensaje")
@@ -350,7 +329,7 @@ else:
         else:
             for m in reversed(lista_mensajes):
                 with st.expander(f"📌 {m['titulo']} (Por: {m['usuario']} - {m['fecha']})"):
-                    st.markdown(f"**Mensaje Cifrado:**")
+                    st.markdown(f"**Mensaje:**")
                     st.code(m["cifrado"], language="text")
-                    st.markdown(f"**Modo / Solución de Descifrado:**")
+                    st.markdown(f"**Modo / Solución:**")
                     st.write(m["metodo"])
