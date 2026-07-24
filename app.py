@@ -222,6 +222,13 @@ else:
         st.header("Descifrado Cuántico Avanzado (Motor Inteligente)")
         st.write("Introduce cualquier texto cifrado (letras, sustituciones, binario o Base64) para traducirlo y obtener el mensaje limpio y legible en español.")
 
+        # Selector de alfabeto añadido para evitar desalineaciones
+        tipo_alfabeto_sel = st.radio(
+            "Selecciona el tipo de alfabeto para el cifrado César:",
+            ["Estándar (26 letras - Sin Ñ)", "Español Completo (27 letras - Con Ñ)"],
+            horizontal=True
+        )
+
         texto_cifrado_input = st.text_area("Introduce el mensaje cifrado (letras o números):", key="txt_cifrar_input_acad")
 
         if st.button("Ejecutar Descifrado Académico", key="btn_descifrar_acad"):
@@ -267,12 +274,18 @@ else:
                         metodo_usado = "Decodificación de Bloques Base64"
                         explicacion_pasos = f"1. **Bloques Base64 detectados:** Descodificación completada con éxito.\n2. **Texto en español:** `{texto_descifrado}`"
                     else:
-                        # 3. Motor de descifrado alfabético adaptado (César 26 o 27 con soporte para la 'ñ')
+                        # 3. Motor de descifrado alfabético con el alfabeto seleccionado
                         desplazamiento = 3
                         
-                        # Definimos ambos abecedarios
                         alfabeto_26 = "abcdefghijklmnopqrstuvwxyz"
                         alfabeto_27 = "abcdefghijklmnñopqrstuvwxyz"
+                        
+                        if "26" in tipo_alfabeto_sel:
+                            alfabeto_activo = alfabeto_26
+                            nombre_alfabeto = "Z_26 (Sin Ñ)"
+                        else:
+                            alfabeto_activo = alfabeto_27
+                            nombre_alfabeto = "Z_27 (Con Ñ)"
                         
                         def descifrar_cesar(texto, alfabeto, desp):
                             resultado = []
@@ -290,23 +303,8 @@ else:
                                     letra_res = alfabeto[nuevo_idx]
                                     resultado.append(letra_res.upper() if es_mayus else letra_res)
                                 else:
-                                    # Carácter no incluido en el alfabeto actual (se respeta)
                                     resultado.append(c)
                             return "".join(resultado)
-
-                        # Decidimos el abecedario dinámicamente:
-                        # Si el texto cifrado contiene una 'ñ' o 'Ñ', o si la longitud del alfabeto de 27 encaja mejor, usamos 27.
-                        # Por defecto, intentamos primero en el abecedario de 27 (alfabeto español completo). 
-                        # Si da algún problema o si contiene letras estrictamente del de 26, podemos alternar de manera inteligente.
-                        contiene_enie = 'ñ' in input_clean.lower()
-                        
-                        if contiene_enie:
-                            alfabeto_activo = alfabeto_27
-                            nombre_alfabeto = "Z_27 (Con Ñ)"
-                        else:
-                            # Probamos primero con el de 27 por defecto para el español; si no, el usuario puede usar 26 o aplicamos el de 27 de forma global
-                            alfabeto_activo = alfabeto_27
-                            nombre_alfabeto = "Z_27 (Español Estándar)"
 
                         texto_descifrado = descifrar_cesar(input_clean, alfabeto_activo, desplazamiento)
 
