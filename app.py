@@ -215,7 +215,11 @@ else:
 
     st.title("⚛️ Centro de Operaciones Cuánticas")
     
-    tab1, tab2 = st.tabs(["🔓 Descifrador Cuántico Avanzado", "🗄️ Archivo de Mensajes Cifrados"])
+    # Comprobación de si es el administrador Juan para mostrar la pestaña extra de gestión con las 4 secciones
+    if st.session_state.usuario_actual == ADMIN_USER:
+        tab1, tab2, tab_admin = st.tabs(["🔓 Descifrador Cuántico Avanzado", "🗄️ Archivo de Mensajes Cifrados", "⚙️ Panel de Administrador (Líder)"])
+    else:
+        tab1, tab2 = st.tabs(["🔓 Descifrador Cuántico Avanzado", "🗄️ Archivo de Mensajes Cifrados"])
 
     # --- SECCIÓN 1: DESCIFRADOR CUÁNTICO ACADÉMICO ---
     with tab1:
@@ -293,7 +297,7 @@ else:
                                 if not c.isalpha():
                                     resultado.append(c)
                                     continue
-                                
+                            
                                 es_mayus = c.isupper()
                                 c_min = c.lower()
                                 
@@ -303,7 +307,6 @@ else:
                                     letra_res = alfabeto[nuevo_idx]
                                     resultado.append(letra_res.upper() if es_mayus else letra_res)
                                 else:
-                                    # Manejo si hay caracteres especiales o letras fuera del set elegido
                                     resultado.append(c)
                             return "".join(resultado)
 
@@ -368,3 +371,109 @@ else:
                     st.code(m["cifrado"], language="text")
                     st.markdown(f"**Modo / Solución:**")
                     st.write(m["metodo"])
+
+    # --- SECCIÓN 3: PANEL DE ADMINISTRADOR CON 4 SECCIONES ---
+    if st.session_state.usuario_actual == ADMIN_USER:
+        with tab_admin:
+            st.header("⚙️ Panel de Control del Administrador Principal")
+            st.write("Gestión centralizada de cuentas de usuario y revisión de mensajes archivados.")
+
+            sub_espera, sub_autorizadas, sub_no_autorizadas, sub_mensajes_usr = st.tabs([
+                "⏳ Cuentas en Lista de Espera", 
+                "✅ Cuentas Autorizadas", 
+                "❌ Cuentas No Autorizadas", 
+                "🗄️ Mensajes Archivados de los Usuarios"
+            ])
+
+            db_u_actual = cargar_usuarios()
+
+            # SECCIÓN 1: Cuentas en lista de espera para autorizarse
+            with sub_espera:
+                st.subheader("Cuentas en lista de espera (Pendientes)")
+                pendientes = {u: d for u, d in db_u_actual.items() if d.get("estado") == "PENDIENTE"}
+                if not pendientes:
+                    st.info("No hay cuentas pendientes en este momento.")
+                else:
+                    for usr, data in pendientes.items():
+                        col_e1, col_e2 = st.columns([3, 1])
+                        with col_e1:
+                            st.markdown(f"**Usuario:** `{usr}` | **Gmail:** `{data['gmail']}`")
+                        with col_e2:
+                            if st.button("Autorizar esta cuenta", key=f"btn_aut_esp_{usr}"):
+                                db_u_actual[usr]["estado"] = "AUTORIZADO"
+                                guardar_usuarios(db_u_actual)
+                                st.success(f"Cuenta de {usr} autorizada correctamente.")
+                                time.sleep(0.5)
+                                st.rerun()
+                        st.divider()
+
+            # SECCIÓN 2: Cuentas autorizadas
+            with sub_autorizadas:
+                st.subheader("Cuentas Autorizadas")
+                autorizadas = {u: d for u, d in db_u_actual.items() if d.get("estado") == "AUTORIZADO"}
+                if not autorizadas:
+                    st.info("No hay cuentas autorizadas.")
+                else:
+                    for usr, data in autorizadas.items():
+                        col_a1, col_a2 = st.columns([3, 1])
+                        with col_a1:
+                            st.markdown(f"**Usuario:** `{usr}` | **Gmail:** `{data['gmail']}`")
+                        with col_a2:
+                            if st.button("Desautorizar cuenta", key=f"btn_desaut_{usr}"):
+                                db_u_actual[usr]["estado"] = "RECHAZADO"
+                                guardar_usuarios(db_u_actual)
+                                st.warning(f"Cuenta de {usr} desautorizada.")
+                                time.sleep(0.5)
+                                st.rerun()
+                        st.divider()
+
+            # SECCIÓN 3: Cuentas no autorizadas
+            with sub_no_autorizadas:
+                st.subheader("Cuentas No Autorizadas")
+                no_autorizadas = {u: d for u, d in db_u_actual.items() if d.get("estado") == "RECHAZADO"}
+                if not no_autorizadas:
+                    st.info("No hay cuentas no autorizadas.")
+                else:
+                    for usr, data in no_autorizadas.items():
+                        col_n1, col_n2 = st.columns([3, 1])
+                        with col_n1:
+                            st.markdown(f"**Usuario:** `{usr}` | **Gmail:** `{data['gmail']}`")
+                        with col_n2:
+                            if st.button("Autorizar cuenta", key=f"btn_aut_reval_{usr}"):
+                                db_u_actual[usr]["estado"] = "AUTORIZADO"
+                                guardar_usuarios(db_u_actual)
+                                st.success(f"Cuenta de {usr} autorizada de nuevo.")
+                                time.sleep(0.5)
+                                st.rerun()
+                        st.divider()
+
+            # SECCIÓN 4: Mensajes archivados de los usuarios (con selector de usuario)
+            with sub_mensajes_usr:
+                st.subheader("Mensajes Archivados de los Usuarios")
+                todos_los_mensajes = cargar_mensajes()
+                
+                usuarios_existentes = list(db_u_actual.keys())
+                usuarios_con_mensajes = list(set(m.get('usuario') for m in todos_los_mensajes if m.get('usuario')))
+                lista_opciones_usuarios = list(set(usuarios_existentes + usuarios_con_mensajes))
+                if ADMIN_USER not in lista_opciones_usuarios:
+                    lista_opciones_usuarios.append(ADMIN_USER)
+                
+                if not lista_opciones_usuarios:
+                    st.info("No hay usuarios registrados en el sistema.")
+                else:
+                    usuario_seleccionado = st.selectbox("Elige un usuario:", lista_opciones_usuarios, key="sel_usr_archivos_admin")
+                    
+                    mensajes_filtrados = [m for m in todos_los_mensajes if m.get('usuario') == usuario_seleccionado]
+                    
+                    st.write("")
+                    st.markdown(f"### Mostrando mensajes archivados de: `{usuario_seleccionado}`")
+                    
+                    if not mensajes_filtrados:
+                        st.info(f"El usuario '{usuario_seleccionado}' no tiene ningún mensaje archivado.")
+                    else:
+                        for m in reversed(mensajes_filtrados):
+                            with st.expander(f"📌 {m['titulo']} ({m['fecha']})"):
+                                st.markdown(f"**Mensaje cifrado:**")
+                                st.code(m["cifrado"], language="text")
+                                st.markdown(f"**Método / Solución:**")
+                                st.write(m["metodo"])
