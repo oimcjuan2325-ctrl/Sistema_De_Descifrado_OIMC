@@ -222,7 +222,7 @@ else:
         st.header("Descifrado Cuántico Avanzado (Motor Inteligente)")
         st.write("Introduce cualquier texto cifrado (letras, sustituciones, binario o Base64) para traducirlo y obtener el mensaje limpio y legible en español.")
 
-        # Selector de alfabeto añadido para evitar desalineaciones
+        # Selector de alfabeto real y funcional
         tipo_alfabeto_sel = st.radio(
             "Selecciona el tipo de alfabeto para el cifrado César:",
             ["Estándar (26 letras - Sin Ñ)", "Español Completo (27 letras - Con Ñ)"],
@@ -274,7 +274,7 @@ else:
                         metodo_usado = "Decodificación de Bloques Base64"
                         explicacion_pasos = f"1. **Bloques Base64 detectados:** Descodificación completada con éxito.\n2. **Texto en español:** `{texto_descifrado}`"
                     else:
-                        # 3. Motor de descifrado alfabético con el alfabeto seleccionado
+                        # 3. Motor de descifrado alfabético con el alfabeto seleccionado (26 o 27 letras real)
                         desplazamiento = 3
                         
                         alfabeto_26 = "abcdefghijklmnopqrstuvwxyz"
@@ -303,6 +303,7 @@ else:
                                     letra_res = alfabeto[nuevo_idx]
                                     resultado.append(letra_res.upper() if es_mayus else letra_res)
                                 else:
+                                    # Manejo si hay caracteres especiales o letras fuera del set elegido
                                     resultado.append(c)
                             return "".join(resultado)
 
@@ -311,7 +312,7 @@ else:
                         metodo_usado = f"Cifrado César Inverso con Alfabeto {nombre_alfabeto}"
                         explicacion_pasos = (
                             f"1. **Análisis de caracteres alfabéticos:** Procesamiento del criptograma basado en letras ('{input_clean}').\n"
-                            f"2. **Alineación de frecuencias:** Aplicación de desplazamiento inverso en base al abecedario de {len(alfabeto_activo)} caracteres.\n"
+                            f"2. **Alineación de frecuencias:** Aplicación de desplazamiento inverso en base al abecedario estricto de {len(alfabeto_activo)} caracteres.\n"
                             f"3. **Texto limpio obtenido:** `{texto_descifrado}`"
                         )
                 
