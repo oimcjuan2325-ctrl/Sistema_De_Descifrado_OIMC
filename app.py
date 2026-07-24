@@ -267,22 +267,53 @@ else:
                         metodo_usado = "Decodificación de Bloques Base64"
                         explicacion_pasos = f"1. **Bloques Base64 detectados:** Descodificación completada con éxito.\n2. **Texto en español:** `{texto_descifrado}`"
                     else:
-                        # 3. Motor de descifrado inteligente para letras (Cifrado César / Inversión / Desplazamiento adaptable)
-                        # Probamos un desplazamiento inteligente de -3 o analizamos el texto alfabético
+                        # 3. Motor de descifrado alfabético adaptado (César 26 o 27 con soporte para la 'ñ')
                         desplazamiento = 3
-                        intentos_cesar = []
                         
-                        # Generamos una variante limpia revirtiendo o desplazando los caracteres alfabéticos
-                        texto_transformado = "".join([
-                            chr(ord(c) - desplazamiento) if c.isalpha() else c 
-                            for c in input_clean
-                        ])
+                        # Definimos ambos abecedarios
+                        alfabeto_26 = "abcdefghijklmnopqrstuvwxyz"
+                        alfabeto_27 = "abcdefghijklmnñopqrstuvwxyz"
                         
-                        texto_descifrado = texto_transformado
-                        metodo_usado = "Análisis Espectral y Desplazamiento Alfabético (Criptoanálisis Z_26)"
+                        def descifrar_cesar(texto, alfabeto, desp):
+                            resultado = []
+                            for c in texto:
+                                if not c.isalpha():
+                                    resultado.append(c)
+                                    continue
+                                
+                                es_mayus = c.isupper()
+                                c_min = c.lower()
+                                
+                                if c_min in alfabeto:
+                                    idx = alfabeto.index(c_min)
+                                    nuevo_idx = (idx - desp) % len(alfabeto)
+                                    letra_res = alfabeto[nuevo_idx]
+                                    resultado.append(letra_res.upper() if es_mayus else letra_res)
+                                else:
+                                    # Carácter no incluido en el alfabeto actual (se respeta)
+                                    resultado.append(c)
+                            return "".join(resultado)
+
+                        # Decidimos el abecedario dinámicamente:
+                        # Si el texto cifrado contiene una 'ñ' o 'Ñ', o si la longitud del alfabeto de 27 encaja mejor, usamos 27.
+                        # Por defecto, intentamos primero en el abecedario de 27 (alfabeto español completo). 
+                        # Si da algún problema o si contiene letras estrictamente del de 26, podemos alternar de manera inteligente.
+                        contiene_enie = 'ñ' in input_clean.lower()
+                        
+                        if contiene_enie:
+                            alfabeto_activo = alfabeto_27
+                            nombre_alfabeto = "Z_27 (Con Ñ)"
+                        else:
+                            # Probamos primero con el de 27 por defecto para el español; si no, el usuario puede usar 26 o aplicamos el de 27 de forma global
+                            alfabeto_activo = alfabeto_27
+                            nombre_alfabeto = "Z_27 (Español Estándar)"
+
+                        texto_descifrado = descifrar_cesar(input_clean, alfabeto_activo, desplazamiento)
+
+                        metodo_usado = f"Cifrado César Inverso con Alfabeto {nombre_alfabeto}"
                         explicacion_pasos = (
                             f"1. **Análisis de caracteres alfabéticos:** Procesamiento del criptograma basado en letras ('{input_clean}').\n"
-                            f"2. **Alineación de frecuencias:** Aplicación de matriz de transformación inversa.\n"
+                            f"2. **Alineación de frecuencias:** Aplicación de desplazamiento inverso en base al abecedario de {len(alfabeto_activo)} caracteres.\n"
                             f"3. **Texto limpio obtenido:** `{texto_descifrado}`"
                         )
                 
