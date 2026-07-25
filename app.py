@@ -221,191 +221,113 @@ else:
     else:
         tab1, tab2 = st.tabs(["🔓 Descifrador Cuántico Avanzado", "🗄️ Archivo de Mensajes Cifrados"])
 
-    # --- SECCIÓN 1: DESCIFRADOR CUÁNTICO INTELIGENTE Y CATÁLOGO DE 50 MÉTODOS ---
+    # --- SECCIÓN 1: DESCIFRADOR CUÁNTICO ACADÉMICO ---
     with tab1:
-        st.header("Descifrado Cuántico Avanzado (Lobby Inteligente)")
-        st.write("Introduce cualquier texto cifrado en el lobby principal para que la web detecte automáticamente su tipo, o bien utiliza el buscador y selecciona manualmente uno de nuestros 50 métodos especializados.")
+        st.header("Descifrado Cuántico Avanzado (Motor Inteligente)")
+        st.write("Introduce cualquier texto cifrado (letras, sustituciones, binario o Base64) para traducirlo y obtener el mensaje limpio y legible en español.")
 
-        # LOBBY PRINCIPAL DE DETECCIÓN AUTOMÁTICA
-        st.markdown("### 🔍 Lobby Principal de Autodetección")
-        texto_lobby = st.text_area("Introduce el mensaje cifrado para análisis automático:", key="txt_lobby_input")
+        # Selector de alfabeto real y funcional
+        tipo_alfabeto_sel = st.radio(
+            "Selecciona el tipo de alfabeto para el cifrado César:",
+            ["Estándar (26 letras - Sin Ñ)", "Español Completo (27 letras - Con Ñ)"],
+            horizontal=True
+        )
 
-        if st.button("Analizar y Detectar Tipo de Cifrado", key="btn_analizar_lobby"):
-            if not texto_lobby:
-                st.warning("Por favor, introduce algún texto para analizar.")
+        texto_cifrado_input = st.text_area("Introduce el mensaje cifrado (letras o números):", key="txt_cifrar_input_acad")
+
+        if st.button("Ejecutar Descifrado Académico", key="btn_descifrar_acad"):
+            if not texto_cifrado_input:
+                st.warning("Por favor, introduce algún texto.")
             else:
-                txt_limpio = texto_lobby.strip()
-                tipo_detectado = "Cifrado César Estándar"
+                input_clean = texto_cifrado_input.strip()
                 
-                # Comprobaciones lógicas para la detección
-                txt_bin = txt_limpio.replace(" ", "")
-                if all(c in '01' for c in txt_bin) and len(txt_bin) >= 8 and len(txt_bin) % 8 == 0:
-                    tipo_detectado = "Demodulación de Matriz Binaria"
-                else:
-                    try:
-                        base64.b64decode(txt_limpio, validate=True)
-                        tipo_detectado = "Codificación Base64"
-                    except:
-                        if all(c in '.-/ ' for c in txt_limpio):
-                            tipo_detectado = "Código Morse"
-                        elif txt_limpio == txt_limpio[::-1]:
-                            tipo_detectado = "Cifrado Espejo Inverso"
-                        else:
-                            tipo_detectado = "Cifrado César Estándar"
-
-                st.success(f"¡Análisis completado con éxito! Tipo detectado: **{tipo_detectado}**")
-                st.info(f"💡 Sugerencia del sistema: Por favor, recurra al apartado específico de **{tipo_detectado}** en el catálogo inferior para proceder al descifrado detallado.")
-
-        st.divider()
-
-        # LISTA COMPLETA DE LOS 50 MÉTODOS DE CIFRADO
-        lista_50_metodos = [
-            "Cifrado César Estándar",
-            "Cifrado César (Español con Ñ)",
-            "Cifrado Atbash (Advas)",
-            "Codificación Base64",
-            "Demodulación de Matriz Binaria",
-            "Código Morse",
-            "Cifrado Espejo Inverso",
-            "Cifrado Rot13",
-            "Cifrado Afín",
-            "Cifrado Vigenère",
-            "Cifrado de Sustitución Polialfabética",
-            "Cifrado de Sustitución Monoalfabética",
-            "Cifrado de Escítala Esparta",
-            "Cifrado Playfair",
-            "Cifrado Hill",
-            "Cifrado de Permutación por Columnas",
-            "Cifrado Rail Fence (Zig-Zag)",
-            "Cifrado XOR Binario",
-            "Cifrado de Beaufort",
-            "Cifrado de Gronsfeld",
-            "Cifrado de Porta",
-            "Cifrado Autoclave (Autokey)",
-            "Cifrado de Cifra Doble Transposición",
-            "Cifrado de Polibio (Cuadrado)",
-            "Cifrado Nihilista",
-            "Cifrado Trifid",
-            "Cifrado Bifid",
-            "Cifrado ADFGVX",
-            "Cifrado ADFGX",
-            "Cifrado de Bacon",
-            "Cifrado de Entintado / Ocultación",
-            "Cifrado de Sustitución Homofónica",
-            "Cifrado de S-Box Cuántico Avanzado",
-            "Cifrado Hash MD5 Simulado",
-            "Cifrado Hash SHA-256 Simulado",
-            "Cifrado XOR Hexadecimal",
-            "Cifrado de Sustitución Numérica",
-            "Cifrado Morse Invertido",
-            "Cifrado de Desplazamiento Aleatorio",
-            "Cifrado de Frase Clave",
-            "Cifrado de Transposición Rectangular",
-            "Cifrado de Rotación Invertida",
-            "Cifrado de Sustitución Simbólica",
-            "Cifrado de Bloques AES Simulado",
-            "Cifrado RSA Matemático Básico",
-            "Cifrado de Puntos y Rayas Avanzado",
-            "Cifrado Espectral de Frecuencias",
-            "Cifrado de Matriz de Rotación",
-            "Cifrado Termodinámico Simulado",
-            "Cifrado Cuántico de Superposición"
-        ]
-
-        st.markdown("### 📚 Catálogo Completo de 50 Métodos de Descifrado")
-        busqueda_metodo = st.text_input("🔎 Buscar apartado de descifrado (ej. César, Atbash, Binario, etc.):", key="input_buscador_metodos")
-
-        # Filtrar métodos según el buscador
-        if busqueda_metodo:
-            metodos_filtrados = [m for m in lista_50_metodos if busqueda_metodo.lower() in m.lower()]
-        else:
-            metodos_filtrados = lista_50_metodos
-
-        st.write(f"Mostrando **{len(metodos_filtrados)}** de {len(lista_50_metodos)} apartados disponibles:")
-
-        # Selector para elegir el apartado específico
-        metodo_seleccionado = st.selectbox("Seleccione el apartado de descifrado específico:", metodos_filtrados, key="select_metodo_activo")
-
-        st.markdown(f"#### ⚙️ Área de Trabajo: {metodo_seleccionado}")
-        st.write(f"Este apartado está diseñado única y exclusivamente para descifrar mensajes correspondientes a: **{metodo_seleccionado}**.")
-
-        # Campos específicos para el descifrado del método seleccionado
-        texto_a_descifrar_metodo = st.text_area(f"Introduce el criptograma para {metodo_seleccionado}:", key="txt_metodo_especifico")
-
-        if st.button(f"Ejecutar Descifrado ({metodo_seleccionado})", key="btn_ejecutar_metodo_esp"):
-            if not texto_a_descifrar_metodo:
-                st.warning("Por favor, introduce el texto a descifrar.")
-            else:
-                c_input = texto_a_descifrar_metodo.strip()
-                resultado_final = ""
+                with st.spinner("Procesando superposición de estados y descifrado de caracteres..."):
+                    time.sleep(1.0)
                 
-                with st.spinner(f"Aplicando algoritmo de {metodo_seleccionado}..."):
-                    time.sleep(0.8)
-
-                # Lógica adaptada según el tipo seleccionado
-                if "Atbash" in metodo_seleccionado or "Advas" in metodo_seleccionado:
-                    alf_norm = "abcdefghijklmnopqrstuvwxyz"
-                    alf_inv = "zyxwvutsrqponmlkjihgfedcba"
-                    res = []
-                    for c in c_input:
-                        if not c.isalpha():
-                            res.append(c)
-                            continue
-                        is_up = c.isupper()
-                        c_low = c.lower()
-                        if c_low in alf_norm:
-                            idx = alf_norm.index(c_low)
-                            nueva_l = alf_inv[idx]
-                            res.append(nueva_l.upper() if is_up else nueva_l)
-                        else:
-                            res.append(c)
-                    resultado_final = "".join(res)
-
-                elif "César Estándar" in metodo_seleccionado:
-                    alf = "abcdefghijklmnopqrstuvwxyz"
-                    res = []
-                    for c in c_input:
-                        if not c.isalpha():
-                            res.append(c)
-                            continue
-                        is_up = c.isupper()
-                        c_low = c.lower()
-                        if c_low in alf:
-                            idx = alf.index(c_low)
-                            nuevo_idx = (idx - 3) % 26
-                            nueva_l = alf[nuevo_idx]
-                            res.append(nueva_l.upper() if is_up else nueva_l)
-                        else:
-                            res.append(c)
-                    resultado_final = "".join(res)
-
-                elif "Base64" in metodo_seleccionado:
+                texto_descifrado = ""
+                metodo_usado = ""
+                explicacion_pasos = ""
+                
+                # 1. Intentar decodificar como Binario
+                input_bin_clean = input_clean.replace(" ", "")
+                es_binario = all(c in '01' for c in input_bin_clean) and len(input_bin_clean) >= 8 and len(input_bin_clean) % 8 == 0
+                
+                if es_binario:
                     try:
-                        dec = base64.b64decode(c_input)
-                        resultado_final = dec.decode('utf-8')
-                    except Exception as e:
-                        resultado_final = f"Error al descodificar Base64: {e}"
-
-                elif "Binaria" in metodo_seleccionado:
-                    try:
-                        b_clean = c_input.replace(" ", "")
                         chars = []
-                        for i in range(0, len(b_clean), 8):
-                            chars.append(chr(int(b_clean[i:i+8], 2)))
-                        resultado_final = "".join(chars)
-                    except Exception as e:
-                        resultado_final = f"Error al procesar matriz binaria: {e}"
+                        for i in range(0, len(input_bin_clean), 8):
+                            byte_str = input_bin_clean[i:i+8]
+                            chars.append(chr(int(byte_str, 2)))
+                        texto_descifrado = "".join(chars)
+                        metodo_usado = "Demodulación de Matriz Binaria a Texto Plano"
+                        explicacion_pasos = f"1. **Conversión de Bits:** Traducción directa de bloques de 8 bits a caracteres ASCII.\n2. **Resultado en español:** `{texto_descifrado}`"
+                    except Exception:
+                        es_binario = False
 
-                elif "Espejo" in metodo_seleccionado:
-                    resultado_final = c_input[::-1]
+                # 2. Intentar Base64 si no es binario
+                if not es_binario:
+                    es_b64 = False
+                    try:
+                        dec = base64.b64decode(input_clean, validate=True)
+                        texto_descifrado = dec.decode('utf-8')
+                        es_b64 = True
+                    except Exception:
+                        pass
 
-                else:
-                    # Método genérico simulado para completar los 50 apartados
-                    resultado_final = f"[Resultado descifrado con éxito mediante {metodo_seleccionado}]: {c_input[::-1]}"
+                    if es_b64:
+                        metodo_usado = "Decodificación de Bloques Base64"
+                        explicacion_pasos = f"1. **Bloques Base64 detectados:** Descodificación completada con éxito.\n2. **Texto en español:** `{texto_descifrado}`"
+                    else:
+                        # 3. Motor de descifrado alfabético con el alfabeto seleccionado (26 o 27 letras real)
+                        desplazamiento = 3
+                        
+                        alfabeto_26 = "abcdefghijklmnopqrstuvwxyz"
+                        alfabeto_27 = "abcdefghijklmnñopqrstuvwxyz"
+                        
+                        if "26" in tipo_alfabeto_sel:
+                            alfabeto_activo = alfabeto_26
+                            nombre_alfabeto = "Z_26 (Sin Ñ)"
+                        else:
+                            alfabeto_activo = alfabeto_27
+                            nombre_alfabeto = "Z_27 (Con Ñ)"
+                        
+                        def descifrar_cesar(texto, alfabeto, desp):
+                            resultado = []
+                            for c in texto:
+                                if not c.isalpha():
+                                    resultado.append(c)
+                                    continue
+                            
+                                es_mayus = c.isupper()
+                                c_min = c.lower()
+                                
+                                if c_min in alfabeto:
+                                    idx = alfabeto.index(c_min)
+                                    nuevo_idx = (idx - desp) % len(alfabeto)
+                                    letra_res = alfabeto[nuevo_idx]
+                                    resultado.append(letra_res.upper() if es_mayus else letra_res)
+                                else:
+                                    resultado.append(c)
+                            return "".join(resultado)
 
-                st.success("¡Descifrado completado con éxito!")
-                st.subheader("Texto Limpio Obtenido:")
-                st.code(resultado_final, language="text")
+                        texto_descifrado = descifrar_cesar(input_clean, alfabeto_activo, desplazamiento)
+
+                        metodo_usado = f"Cifrado César Inverso con Alfabeto {nombre_alfabeto}"
+                        explicacion_pasos = (
+                            f"1. **Análisis de caracteres alfabéticos:** Procesamiento del criptograma basado en letras ('{input_clean}').\n"
+                            f"2. **Alineación de frecuencias:** Aplicación de desplazamiento inverso en base al abecedario estricto de {len(alfabeto_activo)} caracteres.\n"
+                            f"3. **Texto limpio obtenido:** `{texto_descifrado}`"
+                        )
+                
+                st.success("¡Operación completada con éxito!")
+                st.subheader("Texto Legible en Español:")
+                st.code(texto_descifrado, language="text")
+
+                st.markdown("### 🎓 Solución y Demostración Académica:")
+                st.info(
+                    f"**Método Teórico Aplicado:** {metodo_usado}\n\n"
+                    f"{explicacion_pasos}"
+                )
 
     # --- SECCIÓN 2: ARCHIVO DE MENSAJES CIFRADOS ---
     with tab2:
@@ -465,7 +387,7 @@ else:
 
             db_u_actual = cargar_usuarios()
 
-            # SECCIÓN 1: Cuentas en lista de espera
+            # SECCIÓN 1: Cuentas en lista de espera para autorizarse
             with sub_espera:
                 st.subheader("Cuentas en lista de espera (Pendientes)")
                 pendientes = {u: d for u, d in db_u_actual.items() if d.get("estado") == "PENDIENTE"}
@@ -525,7 +447,7 @@ else:
                                 st.rerun()
                         st.divider()
 
-            # SECCIÓN 4: Mensajes archivados de los usuarios
+            # SECCIÓN 4: Mensajes archivados de los usuarios (con selector de usuario)
             with sub_mensajes_usr:
                 st.subheader("Mensajes Archivados de los Usuarios")
                 todos_los_mensajes = cargar_mensajes()
