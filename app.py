@@ -415,7 +415,7 @@ else:
                 else:
                     usuario_seleccionado = st.selectbox("Elige un usuario:", lista_opciones_usuarios, key="sel_usr_archivos_admin")
                     
-                    mensajes_filtrados = [m for m in todos_los_mensajes if m.get('usuario'] == usuario_seleccionado]
+                    mensajes_filtrados = [m for m in todos_los_mensajes if m.get('usuario') == usuario_seleccionado]
                     
                     st.write("")
                     st.markdown(f"### Mostrando mensajes archivados de: `{usuario_seleccionado}`")
