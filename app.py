@@ -20,7 +20,6 @@ ADMIN_PASS = "2325"
 
 # --- GESTIÓN DE PERSISTENCIA (DISCO Y SIMULACIÓN DE LOCAL STORAGE) ---
 def cargar_usuarios():
-    # Si estamos en Streamlit Cloud o entornos efímeros, simulamos persistencia avanzada con session_state
     if "db_usuarios_memoria" in st.session_state:
         return st.session_state.db_usuarios_memoria
         
@@ -33,7 +32,6 @@ def cargar_usuarios():
         except:
             pass
             
-    # Usuario administrador por defecto si no existe base de datos
     default_db = {
         ADMIN_USER: {
             "gmail": "admin@cuantico.com",
@@ -250,17 +248,15 @@ else:
 
     st.title("⚛️ Centro de Operaciones Cuánticas")
     
-    # Pestañas principales generales de la plataforma
     if st.session_state.usuario_actual == ADMIN_USER:
-        tab_principal_descifrado, tab_archivo, tab_admin = st.tabs(["🔓 Secciones de Descifrado Especializadas (20)", "🗄️ Archivo de Mensajes Cifrados", "⚙️ Panel de Administrador (Líder)"])
+        tab_principal_descifrado, tab_archivo, tab_admin = st.tabs(["🔓 Secciones de Descifrado Especializadas (22)", "🗄️ Archivo de Mensajes Cifrados", "⚙️ Panel de Administrador (Líder)"])
     else:
-        tab_principal_descifrado, tab_archivo = st.tabs(["🔓 Secciones de Descifrado Especializadas (20)", "🗄️ Archivo de Mensajes Cifrados"])
+        tab_principal_descifrado, tab_archivo = st.tabs(["🔓 Secciones de Descifrado Especializadas (22)", "🗄️ Archivo de Mensajes Cifrados"])
 
-    # --- SECCIÓN PRINCIPAL: LOBBY DE ANÁLISIS + 20 APARTADOS DE DESCIFRADO ---
+    # --- SECCIÓN PRINCIPAL: LOBBY DE ANÁLISIS + 22 APARTADOS DE DESCIFRADO ---
     with tab_principal_descifrado:
         st.header("Motor Inteligente y Secciones de Descifrado")
         
-        # --- LOBBY DE ANÁLISIS AUTOMÁTICO (ARRIBA) ---
         st.markdown("---")
         st.subheader("🤖 Lobby de Análisis Cuántico Inteligente")
         st.write("Pon aquí su texto cifrado y la web analizará por sí sola qué tipo de cifrado se utilizó para este mensaje.")
@@ -306,7 +302,6 @@ else:
 
         st.markdown("---")
 
-        # --- SECCIÓN DE SELECCIÓN DE APARTADOS ESPECÍFICOS ---
         st.subheader("Selección de Descifrado Específica")
         st.write("Cada sección cuenta con su propio motor independiente y exclusivo para descifrar mensajes de su respectiva categoría.")
 
@@ -330,7 +325,9 @@ else:
             "17. Cifrado de Flujo Cuántico (Simulado)",
             "18. Cifrado Numérico / ASCII",
             "19. Cifrado Hill (Álgebra lineal de matrices)",
-            "20. Motor Inteligente Universal (Detector automático)"
+            "20. Motor Inteligente Universal (Detector automático)",
+            "21. Cifrado Trigonométrico (Matemático de ondas)",
+            "22. Máquina Enigma (Simulador de rotores militares)"
         ]
 
         seccion_elegida = st.selectbox("Elige la sección de descifrado donde deseas entrar:", lista_secciones)
@@ -534,6 +531,92 @@ else:
                     st.code(texto_final, language="text")
 
         # ==========================================
+        # SECCIÓN 21: CIFRADO TRIGONOMÉTRICO
+        # ==========================================
+        elif "21. Cifrado Trigonométrico" in seccion_elegida:
+            st.subheader("🔓 Sección Específica: Cifrado Trigonométrico")
+            st.write("Descifra mensajes basados en ondas matemáticas de desplazamiento trigonométrico (Seno/Coseno):")
+            txt_trig = st.text_area("Texto cifrado (o secuencia numérica separada por espacios):", key="input_trig")
+            frecuencia_trig = st.slider("Factor de frecuencia sinusoidal:", 1, 10, 2, key="slider_trig")
+            
+            if st.button("Descifrar Trigonométrico", key="btn_ejec_trig"):
+                if not txt_trig:
+                    st.warning("Introduce el texto cifrado.")
+                else:
+                    try:
+                        # Intentar procesar como secuencia numérica o texto mediante inversión de onda
+                        if all(p.replace('.', '', 1).isdigit() for p in txt_trig.split()):
+                            nums = [float(p) for p in txt_trig.split()]
+                            res_chars = []
+                            for i, n in enumerate(nums):
+                                desplazamiento_val = int(round(math.sin(i * frecuencia_trig) * 10))
+                                char_code = int(n) - desplazamiento_val
+                                res_chars.append(chr(max(0, char_code)))
+                            texto_final = "".join(res_chars)
+                        else:
+                            # Procesamiento de caracteres aplicando compensación de onda inversa
+                            res = []
+                            for i, c in enumerate(txt_trig):
+                                if not c.isalpha():
+                                    res.append(c)
+                                    continue
+                                shift = int(round(math.sin(i * frecuencia_trig) * 5))
+                                base = ord('A') if c.isupper() else ord('a')
+                                nuevo_c = chr(base + (ord(c) - base - shift) % 26)
+                                res.append(nuevo_c)
+                            texto_final = "".join(res)
+                        
+                        st.success("¡Descifrado Trigonométrico completado!")
+                        st.code(texto_final, language="text")
+                    except Exception as e:
+                        st.error(f"Error en el motor trigonométrico: {e}")
+
+        # ==========================================
+        # SECCIÓN 22: MÁQUINA ENIGMA
+        # ==========================================
+        elif "22. Máquina Enigma" in seccion_elegida:
+            st.subheader("🔓 Sección Específica: Simulador Máquina Enigma")
+            st.write("Configura los rotores y la clave secreta para descifrar el mensaje militar Enigma:")
+            txt_enigma = st.text_area("Texto cifrado por Enigma:", key="input_enigma")
+            clave_enigma = st.text_input("Clave inicial de rotores (ej: ABC):", value="ABC", key="key_enigma")
+            
+            if st.button("Ejecutar Descifrado Enigma", key="btn_ejec_enigma"):
+                if not txt_enigma or not clave_enigma:
+                    st.warning("Introduce el texto cifrado y la clave de rotores.")
+                else:
+                    # Simulación lógica de cifrado/descifrado simétrico de Enigma por desplazamiento de rotores
+                    alfabeto = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                    clave_upper = clave_enigma.upper()
+                    
+                    # Generar desplazamientos basados en la clave de rotores introducida
+                    rotor_shifts = [ord(char) - ord('A') for char in clave_upper if char.isalpha()]
+                    if not rotor_shifts:
+                        rotor_shifts = [1, 2, 3]
+                    
+                    res = []
+                    for idx, c in enumerate(txt_enigma):
+                        if not c.isalpha():
+                            res.append(c)
+                            continue
+                        
+                        is_upper = c.isupper()
+                        c_upper = c.upper()
+                        
+                        # Rotación dinámica de rotores por cada letra procesada
+                        current_shift = (rotor_shifts[idx % len(rotor_shifts)] + idx) % 26
+                        
+                        pos = alfabeto.index(c_upper)
+                        # Operación inversa de Enigma
+                        nueva_pos = (pos - current_shift) % 26
+                        letra_descifrada = alfabeto[nueva_pos]
+                        
+                        res.append(letra_descifrada if is_upper else letra_descifrada.lower())
+                        
+                    texto_final = "".join(res)
+                    st.success("¡Descifrado de Máquina Enigma completado con éxito!")
+                    st.code(texto_final, language="text")
+
+        # ==========================================
         # RESTO DE SECCIONES (9 a 20)
         # ==========================================
         else:
@@ -661,40 +744,23 @@ else:
                     st.info("No hay cuentas no autorizadas.")
                 else:
                     for usr, data in no_autorizadas.items():
-                        col_n1, col_n2 = st.columns([3, 1])
-                        with col_n1:
+                        col_r1, col_r2 = st.columns([3, 1])
+                        with col_r1:
                             st.markdown(f"**Usuario:** `{usr}` | **Gmail:** `{data['gmail']}`")
-                        with col_n2:
-                            if st.button("Autorizar de nuevo", key=f"btn_aut_reval_{usr}"):
+                        with col_r2:
+                            if st.button("Reautorizar", key=f"btn_reaut_{usr}"):
                                 db_u_actual[usr]["estado"] = "AUTORIZADO"
                                 guardar_usuarios(db_u_actual)
-                                st.success(f"Cuenta de {usr} autorizada.")
+                                st.success(f"Cuenta de {usr} reautorizada.")
                                 time.sleep(0.5)
                                 st.rerun()
                         st.divider()
 
             with sub_mensajes_usr:
-                st.subheader("Mensajes Archivados de los Usuarios")
-                todos_los_mensajes = cargar_mensajes()
-                usuarios_existentes = list(db_u_actual.keys())
-                usuarios_con_mensajes = list(set(m.get('usuario') for m in todos_los_mensajes if m.get('usuario')))
-                lista_opciones_usuarios = list(set(usuarios_existentes + usuarios_con_mensajes))
-                if ADMIN_USER not in lista_opciones_usuarios:
-                    lista_opciones_usuarios.append(ADMIN_USER)
-                
-                if not lista_opciones_usuarios:
-                    st.info("No hay usuarios registrados.")
+                st.subheader("Todos los mensajes archivados de la plataforma")
+                lista_msgs = cargar_mensajes()
+                if not lista_msgs:
+                    st.info("No hay mensajes registrados.")
                 else:
-                    usuario_seleccionado = st.selectbox("Elige un usuario:", lista_opciones_usuarios, key="sel_usr_archivos_admin")
-                    mensajes_filtrados = [m for m in todos_los_mensajes if m.get('usuario') == usuario_seleccionado]
-                    
-                    st.write(f"### Mensajes de: `{usuario_seleccionado}`")
-                    if not mensajes_filtrados:
-                        st.info("Este usuario no tiene mensajes archivados.")
-                    else:
-                        for m in reversed(mensajes_filtrados):
-                            with st.expander(f"📌 {m['titulo']} ({m['fecha']})"):
-                                st.markdown(f"**Mensaje cifrado:**")
-                                st.code(m["cifrado"], language="text")
-                                st.markdown(f"**Método / Solución:**")
-                                st.write(m["metodo"])
+                    for m in lista_msgs:
+                        st.markdown(f"- **ID {m['id']}** | **{m['titulo']}** (Creado por: `{m['usuario']}` el {m['fecha']})")
