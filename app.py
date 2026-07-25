@@ -5,6 +5,7 @@ import json
 import os
 import base64
 import math
+import codecs
 
 # Configuración de la página
 st.set_page_config(page_title="Aplicación Cuántica de Mensajes", page_icon="⚛️", layout="wide")
@@ -221,12 +222,65 @@ else:
     else:
         tab_principal_descifrado, tab_archivo = st.tabs(["🔓 Secciones de Descifrado Especializadas (20)", "🗄️ Archivo de Mensajes Cifrados"])
 
-    # --- SECCIÓN PRINCIPAL: 20 APARTADOS DE DESCIFRADO SELECCIONABLES ---
+    # --- SECCIÓN PRINCIPAL: LOBBY DE ANÁLISIS + 20 APARTADOS DE DESCIFRADO ---
     with tab_principal_descifrado:
-        st.header("Selecciona una Sección de Descifrado Específica")
+        st.header("Motor Inteligente y Secciones de Descifrado")
+        
+        # --- LOBBY DE ANÁLISIS AUTOMÁTICO (ARRIBA) ---
+        st.markdown("---")
+        st.subheader("🤖 Lobby de Análisis Cuántico Inteligente")
+        st.write("Pon aquí su texto cifrado y la web analizará por sí sola qué tipo de cifrado se utilizó para este mensaje.")
+        
+        texto_lobby = st.text_area("Introduce cualquier texto cifrado para analizar su tipo:", key="lobby_texto_input")
+        
+        if st.button("Analizar Mensaje Cifrado", key="btn_lobby_analizar"):
+            if not texto_lobby:
+                st.warning("Por favor, introduce algún texto para analizar.")
+            else:
+                clean_t = texto_lobby.strip()
+                with st.spinner("Analizando patrones criptográficos..."):
+                    time.sleep(0.8)
+                
+                # Lógica de detección automática
+                tipo_encontrado = "César"
+                seccion_sugerida = "1. César (Desplazamiento alfabético)"
+                
+                # Comprobación binaria
+                clean_bin = clean_t.replace(" ", "")
+                if all(c in '01' for c in clean_bin) and len(clean_bin) >= 8 and len(clean_bin) % 8 == 0:
+                    tipo_encontrado = "Binario"
+                    seccion_sugerida = "2. Binario (Traducción de bits de 8 bits)"
+                else:
+                    # Comprobación Base64
+                    try:
+                        base64.b64decode(clean_t, validate=True)
+                        tipo_encontrado = "Base64"
+                        seccion_sugerida = "3. Base64 (Codificación estándar)"
+                    except:
+                        # Comprobación Hexadecimal
+                        try:
+                            bytes.fromhex(clean_t.replace(" ", ""))
+                            tipo_encontrado = "Hexadecimal"
+                            seccion_sugerida = "4. Hexadecimal (Base 16)"
+                        except:
+                            # Comprobación Morse
+                            if all(c in '.- /' for c in clean_t):
+                                tipo_encontrado = "Código Morse"
+                                seccion_sugerida = "5. Morse (Código de puntos y rayas)"
+                            else:
+                                tipo_encontrado = "César"
+                                seccion_sugerida = "1. César (Desplazamiento alfabético)"
+
+                st.success("¡Operación completada con éxito!")
+                st.markdown(f"**Instrucciones a seguir:** Este mensaje ha sido cifrado en **{tipo_encontrado}**.")
+                st.info(f"Por favor, busque el apartado del cifrado: **{seccion_sugerida}** abajo en la selección de descifrado específica, introduzca su texto cifrado allí y proceda a descifrarlo.")
+
+        st.markdown("---")
+
+        # --- SECCIÓN DE SELECCIÓN DE APARTADOS ESPECÍFICOS ---
+        st.subheader("Selección de Descifrado Específica")
         st.write("Cada sección cuenta con su propio motor independiente y exclusivo para descifrar mensajes de su respectiva categoría.")
 
-        # Lista completa de las 20 secciones seleccionables mediante un Selectbox o pestañas secundarias anchas
         lista_secciones = [
             "1. César (Desplazamiento alfabético)",
             "2. Binario (Traducción de bits de 8 bits)",
@@ -391,7 +445,6 @@ else:
                 if not txt_rot:
                     st.warning("Introduce texto.")
                 else:
-                    import codecs
                     texto_final = codecs.decode(txt_rot, 'rot_13')
                     st.success("¡Descifrado ROT13 completado!")
                     st.code(texto_final, language="text")
@@ -415,7 +468,6 @@ else:
                             continue
                         m = c.isupper()
                         c_low = c.lower()
-                        # Invertir a-z
                         nuevo_c = chr(ord('z') - (ord(c_low) - ord('a')))
                         res.append(nuevo_c.upper() if m else nuevo_c)
                     texto_final = "".join(res)
@@ -453,10 +505,9 @@ else:
                     st.code(texto_final, language="text")
 
         # ==========================================
-        # RESTO DE SECCIONES (9 a 20) CON MOTORES ESPECÍFICOS Y SELECCIONABLES
+        # RESTO DE SECCIONES (9 a 20)
         # ==========================================
         else:
-            # Para el resto de secciones (9 a 20), el usuario introduce su texto y el sistema aplica la lógica de su apartado
             st.subheader(f"🔓 Sección Específica: {seccion_elegida}")
             st.write(f"Introduce el texto cifrado correspondiente a **{seccion_elegida}**:")
             txt_generico = st.text_area("Texto cifrado:", key=f"input_{seccion_elegida}")
@@ -467,8 +518,6 @@ else:
                 else:
                     time.sleep(0.8)
                     st.success(f"¡Operación completada en la sección {seccion_elegida}!")
-                    
-                    # Generación de descifrado simulado académico/real según la sección seleccionada
                     if "XOR" in seccion_elegida:
                         texto_res = "".join([chr(ord(c) ^ 5) for c in txt_generico])
                     elif "ASCII" in seccion_elegida or "Numérico" in seccion_elegida:
