@@ -10,7 +10,7 @@ import codecs
 # Configuración de la página
 st.set_page_config(page_title="Aplicación Cuántica de Mensajes", page_icon="⚛️", layout="wide")
 
-# Archivo para guardar los mensajes archivados
+# Archivos locales de respaldo en disco
 ARCHIVO_MENSAJES = "mensajes_archivados.json"
 ARCHIVO_USUARIOS = "usuarios.json"
 
@@ -18,36 +18,70 @@ ARCHIVO_USUARIOS = "usuarios.json"
 ADMIN_USER = "Juan"
 ADMIN_PASS = "2325"
 
+# --- GESTIÓN DE PERSISTENCIA (DISCO Y SIMULACIÓN DE LOCAL STORAGE) ---
 def cargar_usuarios():
+    # Si estamos en Streamlit Cloud o entornos efímeros, simulamos persistencia avanzada con session_state
+    if "db_usuarios_memoria" in st.session_state:
+        return st.session_state.db_usuarios_memoria
+        
     if os.path.exists(ARCHIVO_USUARIOS):
         try:
             with open(ARCHIVO_USUARIOS, "r") as f:
-                return json.load(f)
+                data = json.load(f)
+                st.session_state.db_usuarios_memoria = data
+                return data
         except:
-            return {}
-    return {}
+            pass
+            
+    # Usuario administrador por defecto si no existe base de datos
+    default_db = {
+        ADMIN_USER: {
+            "gmail": "admin@cuantico.com",
+            "password": ADMIN_PASS,
+            "estado": "AUTORIZADO",
+            "fecha_autorizacion": "2026-01-01",
+            "bloqueo_hasta": None
+        }
+    }
+    st.session_state.db_usuarios_memoria = default_db
+    return default_db
 
 def guardar_usuarios(db):
-    with open(ARCHIVO_USUARIOS, "w") as f:
-        json.dump(db, f, indent=4)
+    st.session_state.db_usuarios_memoria = db
+    try:
+        with open(ARCHIVO_USUARIOS, "w") as f:
+            json.dump(db, f, indent=4)
+    except:
+        pass
 
 def cargar_mensajes():
+    if "mensajes_memoria" in st.session_state:
+        return st.session_state.mensajes_memoria
+        
     if os.path.exists(ARCHIVO_MENSAJES):
         try:
             with open(ARCHIVO_MENSAJES, "r") as f:
-                return json.load(f)
+                data = json.load(f)
+                st.session_state.mensajes_memoria = data
+                return data
         except:
-            return []
+            pass
+            
+    st.session_state.mensajes_memoria = []
     return []
 
 def guardar_mensajes_disk(mensajes):
-    with open(ARCHIVO_MENSAJES, "w") as f:
-        json.dump(mensajes, f, indent=4)
+    st.session_state.mensajes_memoria = mensajes
+    try:
+        with open(ARCHIVO_MENSAJES, "w") as f:
+            json.dump(mensajes, f, indent=4)
+    except:
+        pass
 
 def enviar_notificacion_admin(gmail, user):
     pass
 
-# Inicializar estados de sesión
+# Inicializar estados de sesión y persistencia sincronizada
 if "autenticado" not in st.session_state:
     st.session_state.autenticado = False
 if "usuario_actual" not in st.session_state:
@@ -241,29 +275,24 @@ else:
                 with st.spinner("Analizando patrones criptográficos..."):
                     time.sleep(0.8)
                 
-                # Lógica de detección automática
                 tipo_encontrado = "César"
                 seccion_sugerida = "1. César (Desplazamiento alfabético)"
                 
-                # Comprobación binaria
                 clean_bin = clean_t.replace(" ", "")
                 if all(c in '01' for c in clean_bin) and len(clean_bin) >= 8 and len(clean_bin) % 8 == 0:
                     tipo_encontrado = "Binario"
                     seccion_sugerida = "2. Binario (Traducción de bits de 8 bits)"
                 else:
-                    # Comprobación Base64
                     try:
                         base64.b64decode(clean_t, validate=True)
                         tipo_encontrado = "Base64"
                         seccion_sugerida = "3. Base64 (Codificación estándar)"
                     except:
-                        # Comprobación Hexadecimal
                         try:
                             bytes.fromhex(clean_t.replace(" ", ""))
                             tipo_encontrado = "Hexadecimal"
                             seccion_sugerida = "4. Hexadecimal (Base 16)"
                         except:
-                            # Comprobación Morse
                             if all(c in '.- /' for c in clean_t):
                                 tipo_encontrado = "Código Morse"
                                 seccion_sugerida = "5. Morse (Código de puntos y rayas)"
