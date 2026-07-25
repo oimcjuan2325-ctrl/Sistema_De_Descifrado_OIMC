@@ -224,109 +224,54 @@ else:
     # --- SECCIÓN 1: DESCIFRADOR CUÁNTICO ACADÉMICO ---
     with tab1:
         st.header("Descifrado Cuántico Avanzado (Motor Inteligente)")
-        st.write("Introduce cualquier texto cifrado (letras, sustituciones, binario o Base64) para traducirlo y obtener el mensaje limpio y legible en español.")
+        st.write("Introduce cualquier texto y cifrado y sigue las siguientes instrucciones.")
 
-        # Selector de alfabeto real y funcional
-        tipo_alfabeto_sel = st.radio(
-            "Selecciona el tipo de alfabeto para el cifrado César:",
-            ["Estándar (26 letras - Sin Ñ)", "Español Completo (27 letras - Con Ñ)"],
-            horizontal=True
-        )
+        texto_cifrado_input = st.text_area("Introduce el mensaje cifrado:", key="txt_cifrar_input_acad")
 
-        texto_cifrado_input = st.text_area("Introduce el mensaje cifrado (letras o números):", key="txt_cifrar_input_acad")
-
-        if st.button("Ejecutar Descifrado Académico", key="btn_descifrar_acad"):
+        if st.button("Ejecutar Descifrado", key="btn_descifrar_acad"):
             if not texto_cifrado_input:
                 st.warning("Por favor, introduce algún texto.")
             else:
                 input_clean = texto_cifrado_input.strip()
                 
-                with st.spinner("Procesando superposición de estados y descifrado de caracteres..."):
+                with st.spinner("Procesando superposición de estados y análisis del tipo de cifrado..."):
                     time.sleep(1.0)
                 
-                texto_descifrado = ""
-                metodo_usado = ""
-                explicacion_pasos = ""
-                
-                # 1. Intentar decodificar como Binario
+                # Identificación automática del tipo de cifrado basado en patrones del texto
                 input_bin_clean = input_clean.replace(" ", "")
                 es_binario = all(c in '01' for c in input_bin_clean) and len(input_bin_clean) >= 8 and len(input_bin_clean) % 8 == 0
                 
                 if es_binario:
-                    try:
-                        chars = []
-                        for i in range(0, len(input_bin_clean), 8):
-                            byte_str = input_bin_clean[i:i+8]
-                            chars.append(chr(int(byte_str, 2)))
-                        texto_descifrado = "".join(chars)
-                        metodo_usado = "Demodulación de Matriz Binaria a Texto Plano"
-                        explicacion_pasos = f"1. **Conversión de Bits:** Traducción directa de bloques de 8 bits a caracteres ASCII.\n2. **Resultado en español:** `{texto_descifrado}`"
-                    except Exception:
-                        es_binario = False
-
-                # 2. Intentar Base64 si no es binario
-                if not es_binario:
+                    tipo_cifrado_detectado = "Cifrado Binario"
+                    seccion_correspondiente = "Binario"
+                else:
                     es_b64 = False
                     try:
-                        dec = base64.b64decode(input_clean, validate=True)
-                        texto_descifrado = dec.decode('utf-8')
+                        base64.b64decode(input_clean, validate=True)
                         es_b64 = True
                     except Exception:
                         pass
 
                     if es_b64:
-                        metodo_usado = "Decodificación de Bloques Base64"
-                        explicacion_pasos = f"1. **Bloques Base64 detectados:** Descodificación completada con éxito.\n2. **Texto en español:** `{texto_descifrado}`"
+                        tipo_cifrado_detectado = "Cifrado Base64"
+                        seccion_correspondiente = "Base64"
                     else:
-                        # 3. Motor de descifrado alfabético con el alfabeto seleccionado (26 o 27 letras real)
-                        desplazamiento = 3
-                        
-                        alfabeto_26 = "abcdefghijklmnopqrstuvwxyz"
-                        alfabeto_27 = "abcdefghijklmnñopqrstuvwxyz"
-                        
-                        if "26" in tipo_alfabeto_sel:
-                            alfabeto_activo = alfabeto_26
-                            nombre_alfabeto = "Z_26 (Sin Ñ)"
+                        # Si contiene números o símbolos específicos, o por defecto se categoriza
+                        if any(c.isdigit() for c in input_clean):
+                            tipo_cifrado_detectado = "Cifrado Numérico / Avanzado"
+                            seccion_correspondiente = "Avanzado"
                         else:
-                            alfabeto_activo = alfabeto_27
-                            nombre_alfabeto = "Z_27 (Con Ñ)"
-                        
-                        def descifrar_cesar(texto, alfabeto, desp):
-                            resultado = []
-                            for c in texto:
-                                if not c.isalpha():
-                                    resultado.append(c)
-                                    continue
-                            
-                                es_mayus = c.isupper()
-                                c_min = c.lower()
-                                
-                                if c_min in alfabeto:
-                                    idx = alfabeto.index(c_min)
-                                    nuevo_idx = (idx - desp) % len(alfabeto)
-                                    letra_res = alfabeto[nuevo_idx]
-                                    resultado.append(letra_res.upper() if es_mayus else letra_res)
-                                else:
-                                    resultado.append(c)
-                            return "".join(resultado)
+                            tipo_cifrado_detectado = "Cifrado César"
+                            seccion_correspondiente = "César"
 
-                        texto_descifrado = descifrar_cesar(input_clean, alfabeto_activo, desplazamiento)
-
-                        metodo_usado = f"Cifrado César Inverso con Alfabeto {nombre_alfabeto}"
-                        explicacion_pasos = (
-                            f"1. **Análisis de caracteres alfabéticos:** Procesamiento del criptograma basado en letras ('{input_clean}').\n"
-                            f"2. **Alineación de frecuencias:** Aplicación de desplazamiento inverso en base al abecedario estricto de {len(alfabeto_activo)} caracteres.\n"
-                            f"3. **Texto limpio obtenido:** `{texto_descifrado}`"
-                        )
-                
                 st.success("¡Operación completada con éxito!")
-                st.subheader("Texto Legible en Español:")
-                st.code(texto_descifrado, language="text")
+                
+                st.markdown(f"### Instrucciones a seguir:")
+                st.write(f"Este cifrado se ha cifrado en **{tipo_cifrado_detectado}**.")
 
-                st.markdown("### 🎓 Solución y Demostración Académica:")
                 st.info(
-                    f"**Método Teórico Aplicado:** {metodo_usado}\n\n"
-                    f"{explicacion_pasos}"
+                    f"Por favor, busque el apartado del cifrado: **{seccion_correspondiente}**, "
+                    f"introduzca su texto cifrado allí y proceda a descifrarlo de forma específica en su sección correspondiente."
                 )
 
     # --- SECCIÓN 2: ARCHIVO DE MENSAJES CIFRADOS ---
