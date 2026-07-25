@@ -256,7 +256,6 @@ else:
                         tipo_cifrado_detectado = "Cifrado Base64"
                         seccion_correspondiente = "Base64"
                     else:
-                        # Si contiene números o símbolos específicos, o por defecto se categoriza
                         if any(c.isdigit() for c in input_clean):
                             tipo_cifrado_detectado = "Cifrado Numérico / Avanzado"
                             seccion_correspondiente = "Avanzado"
@@ -273,6 +272,14 @@ else:
                     f"Por favor, busque el apartado del cifrado: **{seccion_correspondiente}**, "
                     f"introduzca su texto cifrado allí y proceda a descifrarlo de forma específica en su sección correspondiente."
                 )
+
+                st.markdown("### Secciones de descifrados disponibles en el sistema:")
+                st.markdown("""
+                * **César** (Cifrado por desplazamiento alfabético)
+                * **Binario** (Traducción de bloques de bits a caracteres)
+                * **Base64** (Codificación de formato estándar de 64 caracteres)
+                * **Avanzado** (Sistemas de sustitución numérica y matricial compleja)
+                """)
 
     # --- SECCIÓN 2: ARCHIVO DE MENSAJES CIFRADOS ---
     with tab2:
@@ -408,7 +415,7 @@ else:
                 else:
                     usuario_seleccionado = st.selectbox("Elige un usuario:", lista_opciones_usuarios, key="sel_usr_archivos_admin")
                     
-                    mensajes_filtrados = [m for m in todos_los_mensajes if m.get('usuario') == usuario_seleccionado]
+                    mensajes_filtrados = [m for m in todos_los_mensajes if m.get('usuario'] == usuario_seleccionado]
                     
                     st.write("")
                     st.markdown(f"### Mostrando mensajes archivados de: `{usuario_seleccionado}`")
